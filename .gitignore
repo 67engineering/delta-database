@@ -1,0 +1,9 @@
+# dependencies & build output — GitHub rebuilds these, don't upload them
+node_modules
+dist
+src-tauri/target
+
+# local noise
+.DS_Store
+Thumbs.db
+*.log

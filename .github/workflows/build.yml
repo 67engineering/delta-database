@@ -1,0 +1,45 @@
+name: Build Windows installer
+
+# Runs automatically when you upload/change files on the main branch,
+# and can also be started by hand from the Actions tab (Run workflow).
+on:
+  workflow_dispatch:
+  push:
+    branches: [main, master]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Get the code
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Set up Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Cache Rust build (makes later builds faster)
+        uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: src-tauri
+
+      - name: Install frontend packages
+        run: npm install
+
+      - name: Build the Windows installer
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: v__VERSION__
+          releaseName: Apex Logbook v__VERSION__
+          releaseBody: "Windows installer is attached below under Assets. Download the .exe, then double-click to install."
+          releaseDraft: true
+          prerelease: false
